@@ -1,13 +1,8 @@
 import { AppConfig, CountryLevelIndicators, Geojson } from "../types/resourceTypes";
 
 const getResource = async (path: string) => {
-    console.log("Loading resource: " + path);
     const res = await fetch(`resources/${path}`);
-    const status = await res.status;
-    console.log("status: " + status)
-    const json = await res.json();
-    console.log("Loaded: " + JSON.stringify(json));
-    return json;
+    return await res.json();
 }; 
 
 export const getAppConfig = async () => {

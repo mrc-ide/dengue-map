@@ -10,6 +10,8 @@ declare module 'vue' {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     Choropleth: typeof import('./components/Choropleth.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    LGeoJson: typeof import('@vue-leaflet/vue-leaflet')['LGeoJson']
+    LMap: typeof import('@vue-leaflet/vue-leaflet')['LMap']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
