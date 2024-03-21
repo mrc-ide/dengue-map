@@ -9,5 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-  //
+import { useAppStore } from '../stores/appStore';
+
+const { initialiseData } = useAppStore();
+initialiseData();
 </script>

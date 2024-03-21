@@ -1,5 +1,5 @@
 <template>
-  <HelloWorld />
+  <Choropleth />
 </template>
 
 <script lang="ts" setup>
