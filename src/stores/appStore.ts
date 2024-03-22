@@ -32,6 +32,7 @@ export const useAppStore = defineStore('app', {
                     result[country] = allIndicators[country][selectedCountryLevels[country]!!];
                 }    
             });
+            console.log("selectedIndicators: " + JSON.stringify(result))
             return result;
         },
         selectedGeojson: (state): Dict<Geojson> | null => {
