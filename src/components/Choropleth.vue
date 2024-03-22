@@ -4,7 +4,7 @@
         <LMap ref="map" style="height: 800px; width: 100%" @ready="updateBounds">
             <LGeoJson v-for="feature in features"
                         ref="featureRefs"
-                        :key="feature.properties.shapeID"
+                        :key="featureId(feature)"
                         :geojson="feature"
                         :options="createTooltips"
                         :options-style="() => {return {...style, fillColor: getColour(feature)}}">
@@ -13,6 +13,7 @@
     </div>
 </template>    
 <script setup lang="ts">
+import { ref, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useAppStore } from '../stores/appStore';
 import {GeoJSON, Layer, GeoJSONOptions} from "leaflet";
@@ -20,6 +21,8 @@ import {LGeoJson, LMap} from "@vue-leaflet/vue-leaflet";
 import { Feature } from "geojson";
 
 const { selectedGeojson, loading } = storeToRefs(useAppStore());
+
+const FEATURE_ID_PROP = "shapeISO";
 
 const map = ref<typeof LMap | null>(null);
 const featureRefs = ref<typeof LGeoJson[]>([]);
@@ -33,6 +36,8 @@ const features = computed(() => {
     return Object.values(selectedGeojson.value).flatMap((geojson) => geojson.features);
 });
 
+const featureId = (feature: Feature) => feature.properties!![FEATURE_ID_PROP];
+
 const updateBounds = () => {
     if (!loading.value) {
         if (map.value && map.value.leafletObject) {
@@ -41,14 +46,31 @@ const updateBounds = () => {
     }
 };
 
-const tooltipForFeature = (feature: Feature) => feature.properties.shapeID;
+const tooltipForFeature = (feature: Feature) => {
+    return `<div>FeatureId: ${featureId(feature)}</div>`;
+};
 
 const createTooltips = {
     onEachFeature: (feature: Feature, layer: Layer) => {
-        //console.log("CREATING TOOLTIPS")
-        //console.log(`layer: ${Object.keys(layer)}`)
-        //layer.bindTooltip(tooltipForFeature(feature))
+        layer.bindTooltip(tooltipForFeature(feature)).openTooltip();
     }
+};
+
+const updateMap = () => {
+    // TODO: update colour scales
+    updateTooltips();
+}
+
+const updateTooltips = () => {
+    // TODO: can we simplify this?
+    features.value.forEach((feature: Feature) => {       
+        const geojson = featureRefs.value.find(f => featureId(f.geojson) === featureId(feature))
+        if (geojson && geojson.geojson && geojson.leafletObject) {
+            geojson.leafletObject.eachLayer((layer: Layer) => {
+                layer.setTooltipContent(tooltipForFeature(feature));
+            })
+        }      
+    })
 };
 
 const style = {
@@ -60,7 +82,12 @@ const getColour = (feature) => {
     return "rgb(200,200,200)";
 };
 
-watch(featureRefs.value, () => {
+watch(featureRefs, () => {
     updateBounds();
+    updateMap();
 });
+
+watch(features, () => {
+    updateMap();
+})
 </script>
