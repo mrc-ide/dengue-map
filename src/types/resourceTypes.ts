@@ -1,7 +1,14 @@
 import { Feature } from "geojson";
 
+export interface IndicatorConfig {
+    colourScale: {
+        name: string
+    }
+}
+
 export interface AppConfig {
-    countries: string[]
+    countries: string[],
+    indicators: Dict<IndicatorConfig>
 }
 
 export interface IndicatorValue {

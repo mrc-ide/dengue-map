@@ -1,3 +1,15 @@
 {
-    "countries": ["MWI", "TZA"]
+    "countries": ["MWI", "TZA"],
+    "indicators": {
+        "FOI": {
+            "colourScale": {
+                "name": "interpolateReds"
+            }
+        },
+        "p9": {
+            "colourScale": {
+                "name": "interpolateBlues"
+            }
+        }
+    }
 }

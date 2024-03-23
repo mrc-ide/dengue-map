@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loading && !features.length">loading..</div>
+    <div v-if="loading && !features.length && !Object.keys(colourScales).length">loading..</div>
     <div v-else>
         <LMap ref="map" style="height: 800px; width: 100%" @ready="updateBounds">
             <LGeoJson v-for="feature in features"
@@ -7,11 +7,10 @@
                         :key="featureId(feature)"
                         :geojson="feature"
                         :options="createTooltips"
-                        :options-style="() => {return {...style, fillColor: getColour(feature)}}">
+                        :options-style="() => {return {...style, fillColor: getColourForFeature(feature)}}">
             </LGeoJson>
         </LMap>
     </div>
-    <div>{{ JSON.stringify(indicatorExtremes) }}</div>
 </template>    
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
@@ -49,7 +48,7 @@ const indicators = computed(() => {
     return result;
 });
 
-const { indicatorExtremes } = useColourScale(indicators);
+const { colourScales, getColour } = useColourScale(indicators);
 
 
 const featureId = (feature: Feature) => feature.properties!![FEATURE_ID_PROP];
@@ -61,6 +60,13 @@ const updateBounds = () => {
             map.value.leafletObject.fitBounds(features.value.map((f: Feature) => new GeoJSON(f).getBounds()) as any);
         }
     }
+};
+
+// TODO: make indicator selectable
+// TODO: sort out scss - stroke style and opacity
+const getColourForFeature = (feature) => {
+    const featureIndicators = indicators.value[featureId(feature)];
+    return getColour("FOI", featureIndicators);
 };
 
 // TODO: pull out tooltips stuff into composable when fully implement
@@ -106,11 +112,6 @@ const updateTooltips = () => {
 
 const style = {
     className: "geojson"
-};
-
-const getColour = (feature) => {
-    // TODO: map indicator value to colour in scale
-    return "rgb(200,200,200)";
 };
 
 watch(featureRefs, () => {
