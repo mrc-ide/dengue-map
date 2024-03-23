@@ -11,6 +11,7 @@
             </LGeoJson>
         </LMap>
     </div>
+    <div>{{ JSON.stringify(indicatorExtremes) }}</div>
 </template>    
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
@@ -19,6 +20,7 @@ import { useAppStore } from '../stores/appStore';
 import {GeoJSON, Layer} from "leaflet";
 import {LGeoJson, LMap} from "@vue-leaflet/vue-leaflet";
 import { Feature } from "geojson";
+import { useColourScale } from "../composables/useColourScale";
 
 const { selectedGeojson, selectedIndicators, loading } = storeToRefs(useAppStore());
 
@@ -39,15 +41,15 @@ const features = computed(() => {
 });
 
 const indicators = computed(() => {
-    console.log("Building indicators")
     if (loading.value) {
         return {};
     }
     const allFeatureIndicators = Object.values(selectedIndicators.value);
     const result = Object.assign({}, ...allFeatureIndicators);
-    console.log("indicators: " + JSON.stringify(result))
     return result;
 });
+
+const { indicatorExtremes } = useColourScale(indicators);
 
 
 const featureId = (feature: Feature) => feature.properties!![FEATURE_ID_PROP];
@@ -67,13 +69,12 @@ const updateBounds = () => {
 // TODO: include country name (?)
 // TODO: put selected indicator first
 const tooltipForFeature = (feature: Feature) => {
-    console.log("making tooltip for feature")
     let indicatorValues = "";
     const fid = featureId(feature);
     if (fid in indicators.value) {
         const featureValues = indicators.value[fid];
         indicatorValues = Object.keys(featureValues).map((key) => {
-            return `${key}: ${featureValues[key].mean} (+/- ${featureValues[key].mean})<br/>`;
+            return `${key}: ${featureValues[key].mean} (+/- ${featureValues[key].sd})<br/>`;
         }).join("");
     }
     const name = featureName(feature) || featureId(feature);
@@ -115,6 +116,9 @@ const getColour = (feature) => {
 watch(featureRefs, () => {
     updateBounds();
     updateMap();
+
+   
+
 });
 
 watch([selectedGeojson, selectedIndicators], () => {
