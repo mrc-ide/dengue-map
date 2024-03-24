@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loading && !features.length && !Object.keys(colourScales).length">loading..</div>
+    <div v-if="initialising">loading..</div>
     <div v-else>
         <LMap ref="map" style="height: 800px; width: 100%" @ready="updateBounds">
             <LGeoJson v-for="feature in features"
@@ -11,6 +11,7 @@
             </LGeoJson>
         </LMap>
     </div>
+    <v-btn @click="updateBounds">update</v-btn>
 </template>    
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
@@ -62,12 +63,17 @@ const updateBounds = () => {
     }
 };
 
+const initialising = computed(() => {
+    return loading.value && !features.value.length && !indicators.value.length && !Object.keys(colourScales.value).length;
+});
+
 // TODO: make indicator selectable
-// TODO: sort out scss - stroke style and opacity
+// TODO: sort out scss - stroke style and opacity, remove black box on click, optional background layer (?)
 const getColourForFeature = (feature) => {
     const featureIndicators = indicators.value[featureId(feature)];
     return getColour("FOI", featureIndicators);
 };
+
 
 // TODO: pull out tooltips stuff into composable when fully implement
 // TODO: configure friendly indicator names
@@ -86,6 +92,7 @@ const tooltipForFeature = (feature: Feature) => {
     const name = featureName(feature) || featureId(feature);
     return `<div><strong>${name}</strong></div><div>${indicatorValues}</div>`;
 };
+const a=1;
 
 const createTooltips = {
     onEachFeature: (feature: Feature, layer: Layer) => {
@@ -114,15 +121,8 @@ const style = {
     className: "geojson"
 };
 
-watch(featureRefs, () => {
-    updateBounds();
-    updateMap();
-
-   
-
-});
-
 watch([selectedGeojson, selectedIndicators], () => {
+    updateBounds();
     updateMap();
 })
 </script>

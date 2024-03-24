@@ -52,20 +52,24 @@ export const useAppStore = defineStore('app', {
         async initialiseData() {
             this.appConfig = await getAppConfig();
             this.selectedCountryLevels = Object.fromEntries(this.appConfig.countries.map(country => [country, 1]));
+            const allIndicators = {};
+            const allGeojson = {};
 
             // TODO: Later we will use the same logic to lazy load indicator and geojson when country level selections change
             for (const country of this.appConfig.countries) {
-                if (!(country in this.allIndicators) || !(country in this.allGeojson)) {
-                    this.allIndicators[country] = {};
-                    this.allGeojson[country] = {};
+                if (!(country in allIndicators) || !(country in allGeojson)) {
+                    allIndicators[country] = {};
+                    allGeojson[country] = {};
                 }
               
                 const level = this.selectedCountryLevels[country];
-                if (!(level in this.allIndicators[country]) || !(level in this.allGeojson[country])) {
-                    this.allIndicators[country]!![level] = await getIndicators(country, level);
-                    this.allGeojson[country]!![level] = await getGeojson(country, level);
+                if (!(level in allIndicators[country]) || !(level in allGeojson[country])) {
+                    allIndicators[country]!![level] = await getIndicators(country, level);
+                    allGeojson[country]!![level] = await getGeojson(country, level);
                 }
           }
+          Object.assign(this.allIndicators, allIndicators);
+          Object.assign(this.allGeojson, allGeojson);
           this.loading = false;
       }
     }
