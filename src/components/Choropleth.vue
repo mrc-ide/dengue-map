@@ -11,7 +11,6 @@
             </LGeoJson>
         </LMap>
     </div>
-    <v-btn @click="updateBounds">update</v-btn>
 </template>    
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
@@ -68,12 +67,11 @@ const initialising = computed(() => {
 });
 
 // TODO: make indicator selectable
-// TODO: sort out scss - stroke style and opacity, remove black box on click, optional background layer (?)
+// TODO: sort out scss - stroke style and opacity, cursor, remove black box on click, optional background layer (?)
 const getColourForFeature = (feature) => {
     const featureIndicators = indicators.value[featureId(feature)];
     return getColour("FOI", featureIndicators);
 };
-
 
 // TODO: pull out tooltips stuff into composable when fully implement
 // TODO: configure friendly indicator names
