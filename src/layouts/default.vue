@@ -3,7 +3,10 @@
     <v-navigation-drawer v-model="drawer">
       <v-list-item title="Indicators" subtitle="Select an indicator to view its data"></v-list-item>
       <v-divider></v-divider>
-      <v-list-item v-for="name in indicatorNames" link :title="name" :variant="name === 'FOI' ? 'tonal' : 'plain'"></v-list-item>
+      <v-list-item v-for="name in indicatorNames" link 
+                   :title="name"
+                   :variant="name === selectedIndicator ? 'tonal' : 'plain'"
+                   @click="selectedIndicator = name"></v-list-item>
     </v-navigation-drawer>
     <v-app-bar>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -26,9 +29,15 @@ import { useAppStore } from '../stores/appStore';
 const drawer = ref(false);
 
 const { initialiseData }  = useAppStore();
-const { appConfig } = storeToRefs(useAppStore());
+const { appConfig, selectedIndicator } = storeToRefs(useAppStore());
 
 const indicatorNames = computed(() => appConfig.value ?  Object.keys(appConfig.value.indicators) : {});
 
 initialiseData();
 </script>
+<style lang="scss">
+// squash leaflet zoom controls on mobile..
+.v-navigation-drawer {
+    z-index: 9999 !important; 
+}
+</style>

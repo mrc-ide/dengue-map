@@ -6,6 +6,7 @@ import { Ref, ref } from "vue";
 export const useAppStore = defineStore('app', {
     state: () => {
         const loading = true;
+        const selectedIndicator = "";
         const appConfig: AppConfig | null = null;
         const selectedCountryLevels: Dict<number> | null = null;
 
@@ -18,7 +19,8 @@ export const useAppStore = defineStore('app', {
             appConfig,
             selectedCountryLevels,
             allIndicators,
-            allGeojson
+            allGeojson,
+            selectedIndicator
         }
     },
     getters: {
@@ -66,7 +68,11 @@ export const useAppStore = defineStore('app', {
                     allIndicators[country]!![level] = await getIndicators(country, level);
                     allGeojson[country]!![level] = await getGeojson(country, level);
                 }
-          }
+            }
+
+          this.selectedIndicator = Object.keys(this.appConfig.indicators)[0];
+          console.log(`selected ind is ${this.selectedIndicator}`);
+
           Object.assign(this.allIndicators, allIndicators);
           Object.assign(this.allGeojson, allGeojson);
           this.loading = false;

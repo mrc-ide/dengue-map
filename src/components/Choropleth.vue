@@ -21,7 +21,7 @@ import {LGeoJson, LMap} from "@vue-leaflet/vue-leaflet";
 import { Feature } from "geojson";
 import { useColourScale } from "../composables/useColourScale";
 
-const { selectedGeojson, selectedIndicators, loading } = storeToRefs(useAppStore());
+const { selectedGeojson, selectedIndicators, loading, selectedIndicator } = storeToRefs(useAppStore());
 
 const FEATURE_ID_PROP = "shapeISO";
 const FEATURE_NAME_PROP = "shapeName";
@@ -68,10 +68,14 @@ const initialising = computed(() => {
 
 // TODO: make indicator selectable
 // TODO: sort out scss - stroke style and opacity, cursor, remove black box on click, optional background layer (?)
-const getColourForFeature = (feature) => {
-    const featureIndicators = indicators.value[featureId(feature)];
-    return getColour("FOI", featureIndicators);
-};
+const getColourForFeature = computed(() => {
+    console.log("recomputing getColourForFeature")
+    const ind = selectedIndicator.value;
+    return (feature) => {
+        const featureIndicators = indicators.value[featureId(feature)];
+        return getColour(ind, featureIndicators);
+    }
+});
 
 // TODO: pull out tooltips stuff into composable when fully implement
 // TODO: configure friendly indicator names
@@ -90,7 +94,6 @@ const tooltipForFeature = (feature: Feature) => {
     const name = featureName(feature) || featureId(feature);
     return `<div><strong>${name}</strong></div><div>${indicatorValues}</div>`;
 };
-const a=1;
 
 const createTooltips = {
     onEachFeature: (feature: Feature, layer: Layer) => {
@@ -118,6 +121,10 @@ const updateTooltips = () => {
 const style = {
     className: "geojson"
 };
+
+watch(selectedIndicator, () => {
+    console.log("selected indicator updated")
+})
 
 watch([selectedGeojson, selectedIndicators], () => {
     updateBounds();
