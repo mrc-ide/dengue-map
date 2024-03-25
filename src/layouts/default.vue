@@ -23,7 +23,7 @@ import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '../stores/appStore';
 
-const drawer = ref(false);
+const drawer = ref(null);
 
 const { initialiseData }  = useAppStore();
 const { appConfig, selectedIndicator } = storeToRefs(useAppStore());

@@ -10,3 +10,14 @@
 // );
 @import "../../node_modules/leaflet/dist/leaflet.css";
 
+.geojson {
+  stroke-width: 1;
+  fill-opacity: 1.0;
+  stroke: grey;
+  cursor: grab;
+}
+
+.leaflet-container :focus:not(:focus-visible) {
+  outline: 0;
+}
+

@@ -1,7 +1,7 @@
 <template>
     <div v-if="initialising">loading..</div>
     <div v-else>
-        <LMap ref="map" style="height: 800px; width: 100%" @ready="updateBounds">
+        <LMap ref="map" style="height: 100vh; width: 100%" @ready="updateBounds">
             <LGeoJson v-for="f in featuresWithColours"
                         ref="featureRefs"
                         :key="featureId(f.feature)"
@@ -34,8 +34,11 @@ interface FeatureWithColour {
     colour: string
 }
 
+// TODO: include optional background layer (?)
+
 // TODO: we're currently just flattening features and indicators from the store,
-// but we may want to deal with them at country level in future
+// but we may want to deal with them at country level in future.
+// This structure is an inefficient way to get reactivity working, but we can probably do better!
 const featuresWithColours = computed(() => {
     if (loading.value) {
         return [];
@@ -76,7 +79,6 @@ const initialising = computed(() => {
     return loading.value && !featuresWithColours.value.length && !indicators.value.length && !Object.keys(colourScales.value).length;
 });
 
-// TODO: sort out scss - stroke style and opacity, cursor, remove black box on click, optional background layer (?)
 const getColourForFeature = (feature, indicator) => {
     console.log("recomputing getColourForFeature")
     const featureIndicators = indicators.value[featureId(feature)];
