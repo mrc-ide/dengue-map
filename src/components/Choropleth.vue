@@ -2,16 +2,16 @@
     <div v-if="initialising">loading..</div>
     <div v-else>
         <LMap ref="map" style="height: 800px; width: 100%" @ready="updateBounds">
-            <LGeoJson v-for="feature in features"
+            <LGeoJson v-for="f in featuresWithColours"
                         ref="featureRefs"
-                        :key="featureId(feature)"
-                        :geojson="feature"
+                        :key="featureId(f.feature)"
+                        :geojson="f.feature"
                         :options="createTooltips"
-                        :options-style="() => {return {...style, fillColor: getColourForFeature(feature)}}">
+                        :options-style="() => {return {...style, fillColor: f.colour}}">
             </LGeoJson>
         </LMap>
     </div>
-</template>    
+</template>
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
@@ -29,14 +29,24 @@ const FEATURE_NAME_PROP = "shapeName";
 const map = ref<typeof LMap | null>(null);
 const featureRefs = ref<typeof LGeoJson[]>([]);
 
-// TODO: we're currently just flattening features and indicators from the store, 
+interface FeatureWithColour {
+    feature: Feature,
+    colour: string
+}
+
+// TODO: we're currently just flattening features and indicators from the store,
 // but we may want to deal with them at country level in future
-const features = computed(() => {
+const featuresWithColours = computed(() => {
     if (loading.value) {
         return [];
     }
-
-    return Object.values(selectedGeojson.value).flatMap((geojson) => geojson.features);
+    const selectedInd = selectedIndicator.value;
+    return Object.values(selectedGeojson.value).flatMap((geojson) => geojson.features.map((feature) => {
+      return {
+        feature,
+        colour: getColourForFeature(feature, selectedInd)
+      }
+    }));
 });
 
 const indicators = computed(() => {
@@ -57,25 +67,21 @@ const featureName = (feature: Feature) => feature.properties!![FEATURE_NAME_PROP
 const updateBounds = () => {
     if (!loading.value) {
         if (map.value && map.value.leafletObject) {
-            map.value.leafletObject.fitBounds(features.value.map((f: Feature) => new GeoJSON(f).getBounds()) as any);
+            map.value.leafletObject.fitBounds(featuresWithColours.value.map((f: FeatureWithColour) => new GeoJSON(f.feature).getBounds()) as any);
         }
     }
 };
 
 const initialising = computed(() => {
-    return loading.value && !features.value.length && !indicators.value.length && !Object.keys(colourScales.value).length;
+    return loading.value && !featuresWithColours.value.length && !indicators.value.length && !Object.keys(colourScales.value).length;
 });
 
-// TODO: make indicator selectable
 // TODO: sort out scss - stroke style and opacity, cursor, remove black box on click, optional background layer (?)
-const getColourForFeature = computed(() => {
+const getColourForFeature = (feature, indicator) => {
     console.log("recomputing getColourForFeature")
-    const ind = selectedIndicator.value;
-    return (feature) => {
-        const featureIndicators = indicators.value[featureId(feature)];
-        return getColour(ind, featureIndicators);
-    }
-});
+    const featureIndicators = indicators.value[featureId(feature)];
+    return getColour(indicator, featureIndicators);
+};
 
 // TODO: pull out tooltips stuff into composable when fully implement
 // TODO: configure friendly indicator names
@@ -108,23 +114,19 @@ const updateMap = () => {
 
 const updateTooltips = () => {
     // TODO: can we simplify this?
-    features.value.forEach((feature: Feature) => {       
-        const geojson = featureRefs.value.find(f => featureId(f.geojson) === featureId(feature))
+    featuresWithColours.value.forEach((f: FeatureWithColour) => {
+        const geojson = featureRefs.value.find(f => featureId(f.geojson) === featureId(f.feature))
         if (geojson && geojson.geojson && geojson.leafletObject) {
             geojson.leafletObject.eachLayer((layer: Layer) => {
-                layer.setTooltipContent(tooltipForFeature(feature));
+                layer.setTooltipContent(tooltipForFeature(f.feature));
             })
-        }      
+        }
     })
 };
 
 const style = {
     className: "geojson"
 };
-
-watch(selectedIndicator, () => {
-    console.log("selected indicator updated")
-})
 
 watch([selectedGeojson, selectedIndicators], () => {
     updateBounds();

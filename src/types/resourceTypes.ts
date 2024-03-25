@@ -7,6 +7,7 @@ export interface IndicatorConfig {
 }
 
 export interface AppConfig {
+    title: string,
     countries: string[],
     indicators: Dict<IndicatorConfig>
 }
