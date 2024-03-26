@@ -2,6 +2,8 @@
     <div v-if="initialising">loading..</div>
     <div v-else>
         <LMap ref="map" style="height: 100vh; width: 100%" @ready="updateBounds">
+            <LTileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></LTileLayer>
             <LGeoJson v-for="f in featuresWithColours"
                         ref="featureRefs"
                         :key="featureId(f.feature)"
@@ -17,7 +19,7 @@ import { ref, computed, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useAppStore } from '../stores/appStore';
 import {GeoJSON, Layer} from "leaflet";
-import {LGeoJson, LMap} from "@vue-leaflet/vue-leaflet";
+import {LGeoJson, LMap, LTileLayer} from "@vue-leaflet/vue-leaflet";
 import { Feature } from "geojson";
 import { useColourScale } from "../composables/useColourScale";
 
@@ -34,7 +36,7 @@ interface FeatureWithColour {
     colour: string
 }
 
-// TODO: include optional background layer (?)
+// TODO: Use a simpler background layer
 
 // TODO: we're currently just flattening features and indicators from the store,
 // but we may want to deal with them at country level in future.
