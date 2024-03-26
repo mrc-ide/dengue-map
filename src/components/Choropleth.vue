@@ -22,6 +22,7 @@ import {GeoJSON, Layer} from "leaflet";
 import {LGeoJson, LMap, LTileLayer} from "@vue-leaflet/vue-leaflet";
 import { Feature } from "geojson";
 import { useColourScale } from "../composables/useColourScale";
+import "leaflet/dist/leaflet.css";
 
 const { selectedGeojson, selectedIndicators, loading, selectedIndicator } = storeToRefs(useAppStore());
 
