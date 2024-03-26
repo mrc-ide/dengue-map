@@ -19,6 +19,7 @@ jobs:
   deploy:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      BASE_URL: "/arbomap"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

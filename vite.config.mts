@@ -13,7 +13,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/arbomap/",
+  base: `${import.meta.env.BASE_URL || ""}/`,
   plugins: [
     VueRouter({
       dts: 'src/typed-router.d.ts',
