@@ -7,11 +7,14 @@
       <router-view />
     </v-main>
     <div class="sticky-footer">
-      <v-btn v-for="name in indicatorNames" link
-                   class="floating-btn mr-2"
+      <div v-for="name in indicatorNames">
+        <v-btn link
+                   class="floating-btn mb-2 "
                    :class="name === selectedIndicator ? 'bg-blue' : 'bg-black'"
                    rounded="xl"
-                   @click="selectedIndicator = name">{{ name }}</v-btn>
+                   @click="selectedIndicator = name">{{ name }}
+        </v-btn>
+      </div>
     </div>
   </v-app>
 </template>
