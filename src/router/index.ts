@@ -10,7 +10,7 @@ import { setupLayouts } from 'virtual:generated-layouts'
 
 console.log(`base url is ${process.env.BASE_URL}`)
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory("/arbomap"),
   extendRoutes: setupLayouts,
 })
 
