@@ -8,6 +8,7 @@
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
 
+console.log(`base url is ${process.env.BASE_URL}`)
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   extendRoutes: setupLayouts,
