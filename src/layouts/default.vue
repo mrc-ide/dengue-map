@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar :absolute="true">
+    <v-app-bar density="compact">
       <router-link to="/">
-        <v-app-bar-title>{{ appConfig?.title }}</v-app-bar-title>
+        <v-app-bar-title class="ml-2">{{ appConfig?.title }}</v-app-bar-title>
       </router-link>
       <v-spacer></v-spacer>
       <router-link to="/about">
