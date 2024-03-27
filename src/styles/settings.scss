@@ -15,7 +15,14 @@
   cursor: grab;
 }
 
+// Don't show bounding box on click
 .leaflet-container :focus:not(:focus-visible) {
   outline: 0;
+}
+
+// TODO: probably do this through theme once we've decided what to do with those
+.v-toolbar a {
+  color: #fff;
+  text-decoration: none;
 }
 

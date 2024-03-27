@@ -1,40 +1,33 @@
 <template>
   <v-app>
     <v-app-bar :absolute="true">
-      <v-app-bar-title>{{ appConfig?.title }}</v-app-bar-title>
+      <router-link to="/">
+        <v-app-bar-title>{{ appConfig?.title }}</v-app-bar-title>
+      </router-link>
+      <v-spacer></v-spacer>
+      <router-link to="/about">
+        <v-btn icon>
+          <v-icon>mdi-information-outline</v-icon>
+          <v-tooltip activator="parent">About</v-tooltip>
+        </v-btn>
+      </router-link>
     </v-app-bar>
     <v-main>
       <router-view />
     </v-main>
-    <div class="sticky-footer">
-      <div v-for="name in indicatorNames">
-        <v-btn link
-                   class="floating-btn mb-2 "
-                   :class="name === selectedIndicator ? 'bg-blue' : 'bg-black'"
-                   rounded="xl"
-                   @click="selectedIndicator = name">{{ name }}
-        </v-btn>
-      </div>
-    </div>
   </v-app>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAppStore } from '../stores/appStore';
 
-// TODO: Indicators floating in footer as options rather than nav drawer
-// TODO: Excel and image download also as footer option in footer rhs
-// TODO: Make preselected regions available as zoom regions - tick state, select bounding box of all selected + selected countries
-// TODO: auto zoom to selected countries on click (if haven't previously selected region?)
 
-const drawer = ref(null);
+// TODO: Excel and image download also as footer option in footer rhs
+// TODO: auto zoom and lock to selected country on click
 
 const { initialiseData }  = useAppStore();
-const { appConfig, selectedIndicator } = storeToRefs(useAppStore());
-
-const indicatorNames = computed(() => appConfig.value ?  Object.keys(appConfig.value.indicators) : {});
+const { appConfig } = storeToRefs(useAppStore());
 
 initialiseData();
 watch(appConfig, () => {
@@ -42,12 +35,3 @@ watch(appConfig, () => {
 });
 
 </script>
-<style lang="scss">
-.sticky-footer {
-  position: fixed;
-  bottom: 1rem;
-  left: 2rem;
-  background-color: rgba(0,0,0,0);
-  z-index: 999;
-}
-</style>
