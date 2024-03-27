@@ -2,7 +2,10 @@
     <div v-if="initialising">loading..</div>
     <div v-else>
         <LMap ref="map" style="height: 100vh; width: 100%" @ready="updateBounds">
-            <LTileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            <LTileLayer :url="backgroundLayer.url"
+                        :attribution="backgroundLayer.attribution"
+                        :max-zoom="backgroundLayer.maxZoom"
+                        :min-zoom="backgroundLayer.minZoom"
             ></LTileLayer>
             <LGeoJson v-for="f in featuresWithColours"
                         ref="featureRefs"
@@ -37,7 +40,12 @@ interface FeatureWithColour {
     colour: string
 }
 
-// TODO: Use a simpler background layer
+const backgroundLayer = {
+  url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+  attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+  maxZoom: 10,
+  minZoom: 3
+};
 
 // TODO: we're currently just flattening features and indicators from the store,
 // but we may want to deal with them at country level in future.
