@@ -1,9 +1,9 @@
-import { AppConfig, CountryLevelIndicators, Geojson } from "../types/resourceTypes";
+import { AppConfig, CountryLevelIndicators, Geojson } from "../resourceTypes";
 
 const getResource = async (path: string) => {
     const res = await fetch(`resources/${path}`);
     return await res.json();
-}; 
+};
 
 export const getAppConfig = async () => {
     return await getResource("config.json") as AppConfig;

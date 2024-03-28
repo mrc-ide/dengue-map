@@ -27,18 +27,17 @@ import { Feature } from "geojson";
 import { useColourScale } from "../composables/useColourScale";
 import "leaflet/dist/leaflet.css";
 
-const { selectedGeojson, selectedIndicators, loading, selectedIndicator } = storeToRefs(useAppStore());
+interface FeatureWithColour {
+  feature: Feature,
+  colour: string
+}
 
 const FEATURE_ID_PROP = "shapeISO";
 const FEATURE_NAME_PROP = "shapeName";
 
-const map = ref<typeof LMap | null>(null);
-const featureRefs = ref<typeof LGeoJson[]>([]);
-
-interface FeatureWithColour {
-    feature: Feature,
-    colour: string
-}
+const style = {
+  className: "geojson"
+};
 
 const backgroundLayer = {
   url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -47,32 +46,26 @@ const backgroundLayer = {
   minZoom: 3
 };
 
-// TODO: we're currently just flattening features and indicators from the store,
-// but we may want to deal with them at country level in future.
-// This structure is an inefficient way to get reactivity working, but we can probably do better!
+const map = ref<typeof LMap | null>(null);
+const featureRefs = ref<typeof LGeoJson[]>([]);
+
+const { selectedFeatures, selectedIndicators, loading, selectedIndicator } = storeToRefs(useAppStore());
+
+// TODO: This structure is an inefficient way to get reactivity working, but we can probably do better!
 const featuresWithColours = computed(() => {
     if (loading.value) {
         return [];
     }
     const selectedInd = selectedIndicator.value;
-    return Object.values(selectedGeojson.value).flatMap((geojson) => geojson.features.map((feature) => {
+    return selectedFeatures.value.map((feature) => {
       return {
         feature,
         colour: getColourForFeature(feature, selectedInd)
       }
-    }));
+    });
 });
 
-const indicators = computed(() => {
-    if (loading.value) {
-        return {};
-    }
-    const allFeatureIndicators = Object.values(selectedIndicators.value);
-    const result = Object.assign({}, ...allFeatureIndicators);
-    return result;
-});
-
-const { colourScales, getColour } = useColourScale(indicators);
+const { colourScales, getColour } = useColourScale(selectedIndicators);
 
 
 const featureId = (feature: Feature) => feature.properties!![FEATURE_ID_PROP];
@@ -87,12 +80,11 @@ const updateBounds = () => {
 };
 
 const initialising = computed(() => {
-    return loading.value && !featuresWithColours.value.length && !indicators.value.length && !Object.keys(colourScales.value).length;
+    return loading.value && !featuresWithColours.value.length && !selectedIndicators.value.length && !Object.keys(colourScales.value).length;
 });
 
 const getColourForFeature = (feature, indicator) => {
-    console.log("recomputing getColourForFeature")
-    const featureIndicators = indicators.value[featureId(feature)];
+    const featureIndicators = selectedIndicators.value[featureId(feature)];
     return getColour(indicator, featureIndicators);
 };
 
@@ -104,8 +96,8 @@ const getColourForFeature = (feature, indicator) => {
 const tooltipForFeature = (feature: Feature) => {
     let indicatorValues = "";
     const fid = featureId(feature);
-    if (fid in indicators.value) {
-        const featureValues = indicators.value[fid];
+    if (fid in selectedIndicators.value) {
+        const featureValues = selectedIndicators.value[fid];
         indicatorValues = Object.keys(featureValues).map((key) => {
             return `${key}: ${featureValues[key].mean} (+/- ${featureValues[key].sd})<br/>`;
         }).join("");
@@ -137,11 +129,7 @@ const updateTooltips = () => {
     })
 };
 
-const style = {
-    className: "geojson"
-};
-
-watch([selectedGeojson, selectedIndicators], () => {
+watch([selectedFeatures, selectedIndicators], () => {
     updateBounds();
     updateMap();
 })

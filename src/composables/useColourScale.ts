@@ -1,5 +1,5 @@
 import { AppConfig, Ref, computed } from "vue";
-import { FeatureIndicatorValues, IndicatorValue } from "../types/resourceTypes";
+import { FeatureIndicatorValues, IndicatorValue } from "../resourceTypes";
 import { useAppStore } from "../stores/appStore";
 import { storeToRefs } from "pinia";
 import * as d3ScaleChromatic from "d3-scale-chromatic";
